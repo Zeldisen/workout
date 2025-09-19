@@ -1,20 +1,34 @@
 
-import React, { useState } from 'react';
+import React, { useState , useRef, useEffect} from 'react';
 import gymImg from './roligt.jpg';
 import { Link , Outlet } from "react-router-dom";
+
 
 
 function Workouts() {
 
     const [selectedExercises, setSelectedExercises] = useState([]);
+     const [showAdded, setShowAdded] = useState(false);
+     const hideTimer = useRef(null);
 
     const handleAddExercise = (exercise) => {
         setSelectedExercises((prev) => [...prev, exercise]);
+
+                 setShowAdded(true);
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setShowAdded(false), 2000);
+         
     };
       const removeExercise = (index) => {
     setSelectedExercises(prev => prev.filter((_, i) => i !== index));
   };
     const clearAll = () => setSelectedExercises([]);
+
+ 
+
+  useEffect(() => {
+    return () => clearTimeout(hideTimer.current); // städa upp vid unmount
+  }, []);
 
 return (
     <>
@@ -27,25 +41,19 @@ return (
         <Link to="back"><button>Rygg</button></Link>
         <Link to="stomach"><button>Mage</button></Link>
         <Link to="exerciseList"><button>Din träning</button></Link>
+          
+      
+
 
          <Outlet context={{ onAddExercise: handleAddExercise, selectedExercises, removeExercise, clearAll }} />
-        {/* {selectedExercises.length > 0 && (
-           
-            <section className='lista_av_ovningar' style={{ marginTop: "1rem" }}>
-                <h3>Tillagda övningar</h3>
-                <ul>
-                    {selectedExercises.map((ex, i ) => (
-                        <li key={`${ex.id}-${i}`}> {ex.label} - {ex.sets} sets * {ex.reps} reps</li>
-                    ))}
-                </ul>
-                <button onClick={() => setSelectedExercises([])}>Rensa Lista</button>
-            </section>
-        )} */}
-       
+     
+           {showAdded && (
+        <div className="toast">Lagt till övning till din träning!</div>
+      )}
       
     </>
-);
-
+ );
 }
+
 
 export default Workouts;
